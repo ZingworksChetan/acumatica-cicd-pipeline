@@ -52,6 +52,7 @@ jobs:
       - name: Run Build Customization
         shell: pwsh
         run: |
+          cd "${{ github.workspace }}"
           ./buildCustomization.ps1 "${{ env.VERSION_NAME }}"
 
       - name: Run Publish Customization

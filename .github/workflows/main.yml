@@ -17,10 +17,10 @@ jobs:
       - name: Checkout Customization Repository
         uses: actions/checkout@v4
         with:
-          repository: ZingworksChetan/acumatica-customization  # Update with actual repo path
-          ref: main  # Change if pulling from a specific branch
+          repository: ZingworksChetan/acumatica-customization
+          ref: main
           fetch-depth: 1
-          path: Customization
+          path: acumatica-customization
 
       - name: Set Up .NET
         uses: actions/setup-dotnet@v3

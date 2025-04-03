@@ -8,7 +8,7 @@ if (-not $versionName) {
 }
 
 # Construct paths safely
-$customizationPath = [System.IO.Path]::Combine("Customization", $versionName)
+$customizationPath = [System.IO.Path]::Combine("acumatica-customization", "Customization", $versionName)
 $zipFilePath = [System.IO.Path]::Combine($customizationPath, "$versionName.zip")
 $xmlFilePath = [System.IO.Path]::Combine($customizationPath, "_project", "ProjectMetadata.xml")
 

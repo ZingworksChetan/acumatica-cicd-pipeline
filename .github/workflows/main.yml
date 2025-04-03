@@ -44,6 +44,7 @@ jobs:
       - name: Verify Customization Folder Exists
         shell: pwsh
         run: |
+          cd "${{ github.workspace }}"
           $customizationPath = "/acumatica-customization/Customization/${{ env.VERSION_NAME }}"
           if (-Not (Test-Path $customizationPath)) {
             Write-Error "Customization folder '$customizationPath' does not exist!"; exit 1

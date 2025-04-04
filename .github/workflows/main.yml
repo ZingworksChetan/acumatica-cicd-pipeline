@@ -1,9 +1,8 @@
 name: Deploy Acumatica Customization
 
 on:
-  push:
-    paths:
-      - 'Customization/**'  
+  repository_dispatch:
+    types: [trigger-deployment]  
   workflow_dispatch:  # Manual trigger without requiring versionName input
 
 jobs:
@@ -14,6 +13,11 @@ jobs:
       - name: Checkout CI/CD Repository
         uses: actions/checkout@v4
 
+      - name: Extract Customization Version from Input
+        shell: pwsh
+        run: |
+          echo "VERSION_NAME=${{ github.event.client_payload.versionName }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
       # - name: Extract Version from Tag
       #   if: startsWith(github.ref, 'refs/tags/')
       #   shell: pwsh
@@ -21,34 +25,34 @@ jobs:
       #     $versionName = "${{ github.ref }}".Replace('refs/tags/', '')
       #     echo "VERSION_NAME=$versionName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      - name: Checkout Customization Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ZingworksChetan/acumatica-customization
-          ref: main
-          fetch-depth: 1
-          path: acumatica-customization
+      # - name: Checkout Customization Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ZingworksChetan/acumatica-customization
+      #     ref: main
+      #     fetch-depth: 1
+      #     path: acumatica-customization
 
-      - name: Detect New Customization Folder
-        shell: pwsh
-        run: |
-          $latestFolder = (git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | Where-Object { $_ -match "^Customization/[^/]+/$" }) -replace "^Customization/", "" -replace "/$",""
-          if (-Not $latestFolder) {
-            Write-Error "No new customization folder detected!"; exit 1
-          }
-          echo "VERSION_NAME=$latestFolder" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-
-      # - name: Fetch Only Required Customization Folder
+      # - name: Detect New Customization Folder
       #   shell: pwsh
       #   run: |
-      #     git init acumatica-customization
-      #     cd acumatica-customization
-      #     git remote add origin https://github.com/ZingworksChetan/acumatica-customization.git
-      #     git config core.sparseCheckout true
-      #     echo "Customization/${{ env.VERSION_NAME }}" | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
-      #     git pull origin main --depth=1
-      #     if (-Not (Test-Path "Customization/${{ env.VERSION_NAME }}")) {
-      #       Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
+      #     $latestFolder = (git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | Where-Object { $_ -match "^Customization/[^/]+/$" }) -replace "^Customization/", "" -replace "/$",""
+      #     if (-Not $latestFolder) {
+      #       Write-Error "No new customization folder detected!"; exit 1
+      #     }
+      #     echo "VERSION_NAME=$latestFolder" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+
+      - name: Fetch Only Required Customization Folder
+        shell: pwsh
+        run: |
+          git init acumatica-customization
+          cd acumatica-customization
+          git remote add origin https://github.com/ZingworksChetan/acumatica-customization.git
+          git config core.sparseCheckout true
+          echo "Customization/${{ env.VERSION_NAME }}" | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
+          git pull origin main --depth=1
+          if (-Not (Test-Path "Customization/${{ env.VERSION_NAME }}")) {
+            Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
       #     }
 
       - name: Set Up .NET

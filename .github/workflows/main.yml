@@ -4,6 +4,10 @@ on:
   repository_dispatch:
     types: [trigger-deployment]  
   workflow_dispatch:  # Manual trigger without requiring versionName input
+    inputs:
+      versionName:
+        description: "Customization Folder Name"
+        required: true
 
 jobs:
   build_and_publish:

@@ -14,13 +14,22 @@ jobs:
       - name: Checkout CI/CD Repository
         uses: actions/checkout@v4
 
-      - name: Checkout Customization Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ZingworksChetan/acumatica-customization
-          ref: main
-          fetch-depth: 1
-          path: acumatica-customization
+      # - name: Checkout Customization Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ZingworksChetan/acumatica-customization
+      #     ref: main
+      #     fetch-depth: 1
+      #     path: acumatica-customization
+      - name: Fetch Only Required Customization Folder
+        shell: pwsh
+        run: |
+          git init acumatica-customization
+          cd acumatica-customization
+          git remote add origin https://github.com/ZingworksChetan/acumatica-customization.git
+          git config core.sparseCheckout true
+          echo "Customization/${{ env.VERSION_NAME }}" | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
+          git pull origin main --depth=1
 
       - name: Set Up .NET
         uses: actions/setup-dotnet@v3
@@ -55,17 +64,17 @@ jobs:
           cd "${{ github.workspace }}"
           ./buildCustomization.ps1 "${{ env.VERSION_NAME }}"
 
-      - name: Run Publish Customization
-        shell: pwsh
-        env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
-        run: |
-          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
+      # - name: Run Publish Customization
+      #   shell: pwsh
+      #   env:
+      #     ACUMATICA_URL: ${{ secrets.ACUMATICA_URL }}
+      #     ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_USERNAME }}
+      #     ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
+      #   run: |
+      #     ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
 
-      - name: Upload ZIP Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: acumatica-customization
-          path: Customization/${{ env.VERSION_NAME }}/*.zip
+      # - name: Upload ZIP Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: acumatica-customization
+      #     path: Customization/${{ env.VERSION_NAME }}/*.zip

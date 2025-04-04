@@ -57,7 +57,7 @@ jobs:
           git pull origin main --depth=1
           if (-Not (Test-Path "Customization/${{ env.VERSION_NAME }}")) {
             Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
-      #     }
+          }
 
       - name: Set Up .NET
         uses: actions/setup-dotnet@v3

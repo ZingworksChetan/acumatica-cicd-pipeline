@@ -20,7 +20,7 @@ jobs:
       - name: Extract Customization Version from Input
         shell: pwsh
         run: |
-          echo "VERSION_NAME=${{ github.event.client_payload.versionName }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          echo "VERSION_NAME=${{ github.event.inputs.versionName }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
       # - name: Extract Version from Tag
       #   if: startsWith(github.ref, 'refs/tags/')

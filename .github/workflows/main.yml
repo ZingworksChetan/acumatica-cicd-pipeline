@@ -90,9 +90,9 @@ jobs:
       - name: Run Publish Customization
         shell: pwsh
         env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
+          ACUMATICA_URL: ${{ secrets.ACUMATICA_DEV_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_DEV_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_DEV_PASSWORD }}
         run: |
           ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
 
@@ -118,8 +118,8 @@ jobs:
       - name: Run Publish to QA
         shell: pwsh
         env:
-          ACUMATICA_URL: ${{ secrets.QA_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.QA_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.QA_PASSWORD }}
+          ACUMATICA_URL: ${{ secrets.ACUMATICA_QA_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_QA_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_QA_PASSWORD }}
         run: |
           ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"

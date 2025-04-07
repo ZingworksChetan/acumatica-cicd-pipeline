@@ -1,0 +1,41 @@
+name: Rollback Acumatica Customization
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Customization package Name (e.g., SimpleCustomization1.1)'
+        required: true
+      environment:
+        description: 'Target Environment (qa, stage, prod)'
+        required: true
+        type: choice
+        options:
+          - qa
+          - stage
+          - prod
+
+jobs:
+  rollback:
+    runs-on: self-hosted
+
+    steps:
+      - name: Set Environment and Version
+        run: |
+          echo "VERSION_NAME=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
+          echo "TARGET_ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Download ZIP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: acumatica-customization-${{ env.VERSION_NAME }}
+
+      - name: Run Rollback (Publish Script)
+        shell: pwsh
+        env:
+          ACUMATICA_URL: ${{ secrets[format('ACUMATICA_{0}_URL', env.TARGET_ENV | upper)] }}
+          ACUMATICA_USERNAME: ${{ secrets[format('ACUMATICA_{0}_USERNAME', env.TARGET_ENV | upper)] }}
+          ACUMATICA_PASSWORD: ${{ secrets[format('ACUMATICA_{0}_PASSWORD', env.TARGET_ENV | upper)] }}
+        run: |
+          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"

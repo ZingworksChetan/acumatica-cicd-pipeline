@@ -120,4 +120,4 @@ jobs:
           ACUMATICA_USERNAME: ${{ secrets.QA_USERNAME }}
           ACUMATICA_PASSWORD: ${{ secrets.QA_PASSWORD }}
         run: |
-          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
+          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"

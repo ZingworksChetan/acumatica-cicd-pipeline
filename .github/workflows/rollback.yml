@@ -23,7 +23,7 @@ jobs:
       - name: Download Artifact from Previous Version
         uses: actions/download-artifact@v4
         with:
-          name: acumatica-customization
+          name: acumatica-customization-${{ github.event.inputs.versionName }}
           path: rollback-package
 
       - name: List Files to Verify Download

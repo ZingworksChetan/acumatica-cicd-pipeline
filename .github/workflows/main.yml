@@ -85,17 +85,39 @@ jobs:
           cd "${{ github.workspace }}"
           ./buildCustomization.ps1 "${{ env.VERSION_NAME }}"
 
-      # - name: Run Publish Customization
-      #   shell: pwsh
-      #   env:
-      #     ACUMATICA_URL: ${{ secrets.ACUMATICA_URL }}
-      #     ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_USERNAME }}
-      #     ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
-      #   run: |
-      #     ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
+      - name: Run Publish Customization
+        shell: pwsh
+        env:
+          ACUMATICA_URL: ${{ secrets.ACUMATICA_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
+        run: |
+          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
 
-      # - name: Upload ZIP Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: acumatica-customization
-      #     path: Customization/${{ env.VERSION_NAME }}/*.zip
+      - name: Upload ZIP Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: acumatica-customization
+          path: Customization/${{ env.VERSION_NAME }}/*.zip
+
+  deploy_to_qa:
+    needs: build_and_publish
+    runs-on: self-hosted
+    environment:
+      name: qa
+      url: ${{ secrets.QA_URL }}
+
+    steps:
+      - name: Download ZIP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: acumatica-customization
+
+      - name: Run Publish to QA
+        shell: pwsh
+        env:
+          ACUMATICA_URL: ${{ secrets.QA_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.QA_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.QA_PASSWORD }}
+        run: |
+          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"

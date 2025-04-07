@@ -105,7 +105,7 @@ jobs:
     runs-on: self-hosted
     environment:
       name: qa
-      url: ${{ secrets.QA_URL }}
+      # url: ${{ secrets.QA_URL }}
 
     steps:
       - name: Download ZIP Artifact

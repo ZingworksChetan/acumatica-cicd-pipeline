@@ -1,4 +1,4 @@
-name: Deploy Acumatica Customization
+name: Deploy Acumatica Package - ${{ inputs.versionName }}
 
 on:
   repository_dispatch:

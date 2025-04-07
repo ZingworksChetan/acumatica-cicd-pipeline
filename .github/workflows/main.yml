@@ -1,4 +1,4 @@
-name: Deploy Acumatica Package - ${{ github.event.inputs.versionName }}
+name: Deploy Acumatica Package
 
 on:
   repository_dispatch:
@@ -8,6 +8,8 @@ on:
       versionName:
         description: "Customization Folder Name"
         required: true
+
+run-name: Deploy Acumatica Package - ${{ github.event.inputs.versionName }}
 
 jobs:
   build_and_publish:

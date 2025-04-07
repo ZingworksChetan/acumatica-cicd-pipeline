@@ -34,8 +34,8 @@ jobs:
       - name: Run Rollback (Publish Script)
         shell: pwsh
         env:
-          ACUMATICA_URL: ${{ secrets[format('ACUMATICA_{0}_URL', env.TARGET_ENV | upper)] }}
-          ACUMATICA_USERNAME: ${{ secrets[format('ACUMATICA_{0}_USERNAME', env.TARGET_ENV | upper)] }}
-          ACUMATICA_PASSWORD: ${{ secrets[format('ACUMATICA_{0}_PASSWORD', env.TARGET_ENV | upper)] }}
+          ACUMATICA_URL: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_URL')] }}
+          ACUMATICA_USERNAME: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_USERNAME')] }}
+          ACUMATICA_PASSWORD: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_PASSWORD')] }}
         run: |
           ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"

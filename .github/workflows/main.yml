@@ -99,7 +99,7 @@ jobs:
       - name: Upload ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: acumatica-customization
+          name: acumatica-customization-${{ env.VERSION_NAME }}
           path: acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
   deploy_to_qa:
@@ -113,7 +113,7 @@ jobs:
       - name: Download ZIP Artifact
         uses: actions/download-artifact@v4
         with:
-          name: acumatica-customization
+          name: acumatica-customization-${{ github.event.inputs.versionName }}
 
       - name: Run Publish to QA
         shell: pwsh

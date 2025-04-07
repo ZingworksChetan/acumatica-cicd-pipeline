@@ -6,36 +6,65 @@ on:
       versionName:
         description: 'Customization package Name (e.g., SimpleCustomization1.1)'
         required: true
-      environment:
-        description: 'Target Environment (qa, stage, prod)'
+      targetEnv:
+        description: 'Environment to rollback to (dev, qa, stage, prod)'
         required: true
-        type: choice
-        options:
-          - qa
-          - stage
-          - prod
+        default: 'qa'
 
 jobs:
   rollback:
     runs-on: self-hosted
 
-    steps:
-      - name: Set Environment and Version
-        run: |
-          echo "VERSION_NAME=${{ github.event.inputs.versionName }}" >> $GITHUB_ENV
-          echo "TARGET_ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-        shell: bash
+    env:
+      VERSION_NAME: ${{ github.event.inputs.versionName }}
+      TARGET_ENV: ${{ github.event.inputs.targetEnv }}
 
-      - name: Download ZIP Artifact
+    steps:
+      - name: Download Artifact from Previous Version
         uses: actions/download-artifact@v4
         with:
-          name: acumatica-customization-${{ env.VERSION_NAME }}
+          name: acumatica-customization
+          path: rollback-package
 
-      - name: Run Rollback (Publish Script)
+      - name: List Files to Verify Download
+        run: |
+          echo "Downloaded rollback package contents:"
+          ls -R rollback-package
+
+      - name: Set Environment-Specific Secrets
+        id: set-secrets
+        run: |
+          if ("${{ env.TARGET_ENV }}" -eq "dev") {
+            echo "ACUMATICA_URL=${{ secrets.ACUMATICA_DEV_URL }}" >> $env:GITHUB_ENV
+            echo "ACUMATICA_USERNAME=${{ secrets.ACUMATICA_DEV_USERNAME }}" >> $env:GITHUB_ENV
+            echo "ACUMATICA_PASSWORD=${{ secrets.ACUMATICA_DEV_PASSWORD }}" >> $env:GITHUB_ENV
+          }
+          elseif ("${{ env.TARGET_ENV }}" -eq "qa") {
+            echo "ACUMATICA_URL=${{ secrets.ACUMATICA_QA_URL }}" >> $env:GITHUB_ENV
+            echo "ACUMATICA_USERNAME=${{ secrets.ACUMATICA_QA_USERNAME }}" >> $env:GITHUB_ENV
+            echo "ACUMATICA_PASSWORD=${{ secrets.ACUMATICA_QA_PASSWORD }}" >> $env:GITHUB_ENV
+          }
+          # elseif ("${{ env.TARGET_ENV }}" -eq "stage") {
+          #   echo "ACUMATICA_URL=${{ secrets.STAGE_URL }}" >> $env:GITHUB_ENV
+          #   echo "ACUMATICA_USERNAME=${{ secrets.STAGE_USERNAME }}" >> $env:GITHUB_ENV
+          #   echo "ACUMATICA_PASSWORD=${{ secrets.STAGE_PASSWORD }}" >> $env:GITHUB_ENV
+          # }
+          # elseif ("${{ env.TARGET_ENV }}" -eq "prod") {
+          #   echo "ACUMATICA_URL=${{ secrets.PROD_URL }}" >> $env:GITHUB_ENV
+          #   echo "ACUMATICA_USERNAME=${{ secrets.PROD_USERNAME }}" >> $env:GITHUB_ENV
+          #   echo "ACUMATICA_PASSWORD=${{ secrets.PROD_PASSWORD }}" >> $env:GITHUB_ENV
+          # }
+          else {
+            Write-Error "Unsupported environment: ${{ env.TARGET_ENV }}"
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Rollback to ${{ env.VERSION_NAME }} on ${{ env.TARGET_ENV }}
         shell: pwsh
         env:
-          ACUMATICA_URL: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_URL')] }}
-          ACUMATICA_USERNAME: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_USERNAME')] }}
-          ACUMATICA_PASSWORD: ${{ secrets[format('ACUMATICA_' + env.TARGET_ENV | upper + '_PASSWORD')] }}
+          ACUMATICA_URL: ${{ env.ACUMATICA_URL }}
+          ACUMATICA_USERNAME: ${{ env.ACUMATICA_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ env.ACUMATICA_PASSWORD }}
         run: |
           ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"

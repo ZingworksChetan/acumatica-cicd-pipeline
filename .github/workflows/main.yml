@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: acumatica-customization
-          path: Customization/${{ env.VERSION_NAME }}/*.zip
+          path: acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
   deploy_to_qa:
     needs: build_and_publish

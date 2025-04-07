@@ -258,7 +258,8 @@ namespace Velixo.Common.CustomizationPackageTools
             if (!File.Exists(packagePath))
             {
                 Console.WriteLine($"Error: File not found at path: {packagePath}");
-                return;
+                Environment.Exit(1);
+                //return;
             }
 
             string packageContent = Convert.ToBase64String(await File.ReadAllBytesAsync(packagePath));

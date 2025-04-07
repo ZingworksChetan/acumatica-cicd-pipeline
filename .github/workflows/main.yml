@@ -1,4 +1,4 @@
-name: Deploy Acumatica Package - ${{ inputs.versionName }}
+name: Deploy Acumatica Package - ${{ github.event.inputs.versionName }}
 
 on:
   repository_dispatch:

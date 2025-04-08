@@ -3,7 +3,7 @@ name: Deploy Acumatica Package
 on:
   repository_dispatch:
     types: [trigger-deployment]  
-  workflow_dispatch:  # Manual trigger without requiring versionName input
+  workflow_dispatch:
     inputs:
       versionName:
         description: "Customization Folder Name"
@@ -12,7 +12,7 @@ on:
 run-name: Deploy Acumatica Package - ${{ github.event.inputs.versionName }}
 
 jobs:
-  build_and_publish:
+  build_and_deploy_to_dev:
     runs-on: self-hosted
 
     steps:
@@ -102,12 +102,11 @@ jobs:
           name: acumatica-customization-${{ env.VERSION_NAME }}
           path: acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
-  deploy_to_qa:
-    needs: build_and_publish
+  promote_to_qa:
+    needs: build_and_deploy_to_dev
     runs-on: self-hosted
     environment:
       name: qa
-      # url: ${{ secrets.QA_URL }}
 
     steps:
       - name: Download ZIP Artifact
@@ -121,5 +120,48 @@ jobs:
           ACUMATICA_URL: ${{ secrets.ACUMATICA_QA_URL }}
           ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_QA_USERNAME }}
           ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_QA_PASSWORD }}
+        run: |
+          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
+
+  
+  promote_to_stage:
+    needs: promot_to_qa
+    runs-on: self-hosted
+    environment:
+      name: stage
+
+    steps:
+      - name: Download ZIP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: acumatica-customization-${{ github.event.inputs.versionName }}
+
+      - name: Run Publish to Stage
+        shell: pwsh
+        env:
+          ACUMATICA_URL: ${{ secrets.ACUMATICA_STAGE_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_STAGE_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_STAGE_PASSWORD }}
+        run: |
+          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
+
+  promote_to_prod:
+    needs: promote_to_stage
+    runs-on: self-hosted
+    environment:
+      name: prod
+
+    steps:
+      - name: Download ZIP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: acumatica-customization-${{ github.event.inputs.versionName }}
+
+      - name: Run Publish to Stage
+        shell: pwsh
+        env:
+          ACUMATICA_URL: ${{ secrets.ACUMATICA_PROD_URL }}
+          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_PROD_USERNAME }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PROD_PASSWORD }}
         run: |
           ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"

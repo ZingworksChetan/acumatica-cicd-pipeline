@@ -123,9 +123,8 @@ jobs:
         run: |
           ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
 
-  
   promote_to_stage:
-    needs: promot_to_qa
+    needs: promote_to_qa
     runs-on: self-hosted
     environment:
       name: stage

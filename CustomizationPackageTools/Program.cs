@@ -10,6 +10,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using ServiceGate;
 using System.Security.Policy;
+using System.Text.RegularExpressions;
 
 
 
@@ -332,15 +333,31 @@ namespace Velixo.Common.CustomizationPackageTools
 
                             if (jsonObject.TryGetProperty("projects", out JsonElement projectsElement))
                             {
-                                var projects = projectsElement
-                                    .EnumerateArray()
-                                    .Select(p => p.GetProperty("name").GetString())
-                                    .Where(name => !string.IsNullOrEmpty(name) && !name.Contains("SimpleCustomization"))
+                                List<(string projectName, string version)> projectsWithVersions = new();
+
+                                foreach (var project in projectsElement.EnumerateArray())
+                                {
+                                    string projectNameRaw = project.GetProperty("name").GetString() ?? "";
+                                    var parsed = ExtractProjectAndVersion(projectNameRaw.Trim());
+                                    projectsWithVersions.Add(parsed);
+                                }
+
+                                var newProjectParsed = ExtractProjectAndVersion(newProject.Trim());
+
+                                // Remove matching project name 
+                                var filteredProjects = projectsWithVersions
+                                    .Where(p => !p.projectName.Equals(newProjectParsed.projectName))
                                     .ToList();
 
-                                projects.Add(newProject);
-                             
-                                return string.Join(",", projects);
+                                // Reconstruct remaining full names
+                                List<string> fullProjectNames = filteredProjects
+                                    .Select(p => p.version == "N/A" ? p.projectName : $"{p.projectName}{p.version}")
+                                    .ToList();
+
+                                // Add back the newProject at the end
+                                fullProjectNames.Add(newProject);
+
+                                return string.Join(",", fullProjectNames);
                             }
                             else
                             {
@@ -475,6 +492,23 @@ namespace Velixo.Common.CustomizationPackageTools
                 Console.WriteLine("Publishing timeout reached (30 min).");
                 return false;
             }
+        }
+
+        private static (string projectName, string version) ExtractProjectAndVersion(string project)
+        {
+            //string pattern = @"^([a-zA-Z]+(?:[a-zA-Z0-9]+)*?)(V\d+|\d{2,}R\d{3,}v\d+|\d+\.\d+\.\d+\.\d+|\d+\.\d+\.\d+|\d+\.\d+|\[\d+\.\d+\.\d+\]\[\d+\]|\[\d+R\d+\]|\[\d+\]|\d{4}R\d+|\[[\d\.R]+\])$";
+            string pattern = @"^([^\[]+)(\[[^\]]+\])$";
+            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            Match match = regex.Match(project);
+
+            if (match.Success)
+            {
+                string projectName = match.Groups[1].Value.Trim();  //  Using .Value.Trim()
+                string version = match.Groups[2].Value.Trim();
+                return (projectName, version);
+            }
+
+            return (project, "N/A");
         }
 
     }

@@ -58,7 +58,7 @@ jobs:
           git config core.sparseCheckout true
           echo $escapedFolder | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
           git pull origin main --depth=1
-          if (-Not (Test-Path -LiteralPath "acumatica-customization/Customization/${{ env.VERSION_NAME }}")) {
+          if (-Not (Test-Path -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}")) {
           Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
           }
 

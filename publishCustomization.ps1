@@ -29,14 +29,19 @@ if (-not (Test-Path -LiteralPath $xmlFilePath)) {
     exit 1
 }
 
-# Load XML and extract project level
+# Load XML and extract project level and description
 [xml]$xmlContent = Get-Content -LiteralPath $xmlFilePath
 $Level = $xmlContent.project.level
+$Description = $xmlContent.project.description
 
 # Set Level to 0 if it's missing or empty
 if (-not $Level -or $Level.Trim() -eq "") {
     Write-Host "Warning: 'Level' is missing or empty in ProjectMetadata.xml. Defaulting to 0."
     $Level = 0
+}
+if (-not $Description -or $Description.Trim() -eq "") {
+    Write-Host "Warning: 'Description' is missing or empty in ProjectMetadata.xml. Defaulting to project name ."
+    $Description = $versionName
 }
 
 Write-Host "Level of PackG: $Level"
@@ -44,6 +49,6 @@ Write-Host "Level of PackG: $Level"
 $cmd = "CustomizationPackageTools\bin\Release\net8.0\CustomizationPackageTools.exe"
 
 # Execute the publish command safely
-&$cmd publish --packagefilename "$zipFilePath" --packagename "$packageName" --url "$serverUrl" --username "$username" --password "$password" --description "$versionName" --level "$Level"
+&$cmd publish --packagefilename "$zipFilePath" --packagename "$packageName" --url "$serverUrl" --username "$username" --password "$password" --description "$Description" --level "$Level"
 
 

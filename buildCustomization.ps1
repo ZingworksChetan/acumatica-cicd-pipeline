@@ -34,6 +34,7 @@ if (-not (Test-Path -LiteralPath $xmlFilePath -PathType Leaf)) {
 # Load XML and extract project level
 [xml]$xmlContent = Get-Content -LiteralPath $xmlFilePath
 $Level = $xmlContent.project.level
+$Description = $xmlContent.project.description
 
 # Set Level to 0 if it's missing or empty
 if (-not $Level -or $Level.Trim() -eq "") {
@@ -41,11 +42,16 @@ if (-not $Level -or $Level.Trim() -eq "") {
     $Level = 0
 }
 
+if (-not $Description -or $Description.Trim() -eq "") {
+    Write-Host "Warning: 'Description' is missing or empty in ProjectMetadata.xml. Defaulting to project name ."
+    $Description = $versionName
+}
+
 Write-Host "Level of PackG: $Level"
 
 $cmd = "CustomizationPackageTools\bin\Release\net8.0\CustomizationPackageTools.exe"
 
 # Execute the build command safely
-&$cmd build --customizationpath "$customizationPath" --packagefilename "$zipFileName" --description "$versionName" --level $Level
+&$cmd build --customizationpath "$customizationPath" --packagefilename "$zipFileName" --description "$Description" --level $Level
 
 Write-Host "Customization package created successfully: $zipFileName"

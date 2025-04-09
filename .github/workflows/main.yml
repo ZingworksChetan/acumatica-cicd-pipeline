@@ -51,14 +51,15 @@ jobs:
       - name: Fetch Only Required Customization Folder
         shell: pwsh
         run: |
+          $escapedFolder = "Customization/${{ env.VERSION_NAME }}" -replace '\[', '\[' -replace '\]', '\]'
           git init acumatica-customization
           cd acumatica-customization
           git remote add origin https://github.com/ZingworksChetan/acumatica-customization.git
           git config core.sparseCheckout true
-          echo "Customization/${{ env.VERSION_NAME }}" | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
+          echo $escapedFolder | Out-File -FilePath .git/info/sparse-checkout -Encoding utf8
           git pull origin main --depth=1
           if (-Not (Test-Path "Customization/${{ env.VERSION_NAME }}")) {
-            Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
+          Write-Error "Customization folder '${{ env.VERSION_NAME }}' does not exist!"; exit 1
           }
 
       - name: Set Up .NET

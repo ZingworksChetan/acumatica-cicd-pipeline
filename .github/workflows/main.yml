@@ -88,14 +88,14 @@ jobs:
           cd "${{ github.workspace }}"
           ./buildCustomization.ps1 "${{ env.VERSION_NAME }}"
 
-      - name: Run Publish Customization
-        shell: pwsh
-        env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_DEV_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_DEV_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_DEV_PASSWORD }}
-        run: |
-          ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
+      # - name: Run Publish Customization
+      #   shell: pwsh
+      #   env:
+      #     ACUMATICA_URL: ${{ secrets.ACUMATICA_DEV_URL }}
+      #     ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_DEV_USERNAME }}
+      #     ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_DEV_PASSWORD }}
+      #   run: |
+      #     ./publishCustomization.ps1 "${{ env.VERSION_NAME }}"
 
       # - name: Upload ZIP Artifact
       #   uses: actions/upload-artifact@v4
@@ -107,7 +107,7 @@ jobs:
         id: locate_zip
         shell: pwsh
         run: |
-          $zipPath = Get-ChildItem -Path "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
+          $zipPath = Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
           echo "ZIP_PATH=$zipPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
       - name: Upload Artifact using Safe Path
@@ -116,65 +116,65 @@ jobs:
           name: acumatica-customization-${{ env.VERSION_NAME }}
           path: ${{ env.ZIP_PATH }}
 
-  promote_to_qa:
-    needs: build_and_deploy_to_dev
-    runs-on: self-hosted
-    environment:
-      name: qa
+  # promote_to_qa:
+  #   needs: build_and_deploy_to_dev
+  #   runs-on: self-hosted
+  #   environment:
+  #     name: qa
 
-    steps:
-      - name: Download ZIP Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: acumatica-customization-${{ github.event.inputs.versionName }}
+  #   steps:
+  #     - name: Download ZIP Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: acumatica-customization-${{ github.event.inputs.versionName }}
 
-      - name: Run Publish to QA
-        shell: pwsh
-        env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_QA_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_QA_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_QA_PASSWORD }}
-        run: |
-          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
+  #     - name: Run Publish to QA
+  #       shell: pwsh
+  #       env:
+  #         ACUMATICA_URL: ${{ secrets.ACUMATICA_QA_URL }}
+  #         ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_QA_USERNAME }}
+  #         ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_QA_PASSWORD }}
+  #       run: |
+  #         ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
 
-  promote_to_stage:
-    needs: promote_to_qa
-    runs-on: self-hosted
-    environment:
-      name: stage
+  # promote_to_stage:
+  #   needs: promote_to_qa
+  #   runs-on: self-hosted
+  #   environment:
+  #     name: stage
 
-    steps:
-      - name: Download ZIP Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: acumatica-customization-${{ github.event.inputs.versionName }}
+  #   steps:
+  #     - name: Download ZIP Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: acumatica-customization-${{ github.event.inputs.versionName }}
 
-      - name: Run Publish to Stage
-        shell: pwsh
-        env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_STAGE_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_STAGE_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_STAGE_PASSWORD }}
-        run: |
-          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
+  #     - name: Run Publish to Stage
+  #       shell: pwsh
+  #       env:
+  #         ACUMATICA_URL: ${{ secrets.ACUMATICA_STAGE_URL }}
+  #         ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_STAGE_USERNAME }}
+  #         ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_STAGE_PASSWORD }}
+  #       run: |
+  #         ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
 
-  promote_to_prod:
-    needs: promote_to_stage
-    runs-on: self-hosted
-    environment:
-      name: prod
+  # promote_to_prod:
+  #   needs: promote_to_stage
+  #   runs-on: self-hosted
+  #   environment:
+  #     name: prod
 
-    steps:
-      - name: Download ZIP Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: acumatica-customization-${{ github.event.inputs.versionName }}
+  #   steps:
+  #     - name: Download ZIP Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: acumatica-customization-${{ github.event.inputs.versionName }}
 
-      - name: Run Publish to Stage
-        shell: pwsh
-        env:
-          ACUMATICA_URL: ${{ secrets.ACUMATICA_PROD_URL }}
-          ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_PROD_USERNAME }}
-          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PROD_PASSWORD }}
-        run: |
-          ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"
+  #     - name: Run Publish to Stage
+  #       shell: pwsh
+  #       env:
+  #         ACUMATICA_URL: ${{ secrets.ACUMATICA_PROD_URL }}
+  #         ACUMATICA_USERNAME: ${{ secrets.ACUMATICA_PROD_USERNAME }}
+  #         ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PROD_PASSWORD }}
+  #       run: |
+  #         ./publishCustomization.ps1 "${{ github.event.inputs.versionName }}"

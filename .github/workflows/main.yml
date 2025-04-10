@@ -103,20 +103,12 @@ jobs:
       #     name: acumatica-customization-${{ env.VERSION_NAME }}
       #     path: ${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
-      - name: Copy ZIP to temp upload folder (preserve name with brackets)
-        shell: pwsh
+      - name: Upload ZIP to GitHub Release
         run: |
-          $source = Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
-          $targetDir = "${{ runner.temp }}/acumatica-artifact-${{ env.VERSION_NAME }}"
-          New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
-          Copy-Item -Path $source -Destination $targetDir
-          echo "UPLOAD_DIR=$targetDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: acumatica-customization-${{ env.VERSION_NAME }}
-          path: ${{ env.UPLOAD_DIR }}
+          gh release create temp-${{ github.run_id }} --notes "Temporary upload for ${{ env.VERSION_NAME }}" || echo "Release already exists"
+          gh release upload temp-${{ github.run_id }} "./acumatica-customization/Customization/${{ env.VERSION_NAME }}/${{ env.VERSION_NAME }}.zip" --clobber
+        env:
+          GH_TOKEN: ${{ secrets.CICDTOKEN }}
 
   # promote_to_qa:
   #   needs: build_and_deploy_to_dev

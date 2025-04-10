@@ -241,6 +241,7 @@ namespace Velixo.Common.CustomizationPackageTools
                         Console.WriteLine($"Login failed: {response.StatusCode} {response.ReasonPhrase}");
                         //return null;
                         return new List<string>(); // Avoid returning null
+                        Environment.Exit(1);
                     }
                 }
                 catch (Exception ex)

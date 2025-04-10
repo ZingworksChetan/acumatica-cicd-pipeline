@@ -103,23 +103,20 @@ jobs:
       #     name: acumatica-customization-${{ env.VERSION_NAME }}
       #     path: ${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
-      - name: Debug - List Files in Customization Folder
+      - name: Copy ZIP to temp upload folder (preserve name with brackets)
         shell: pwsh
         run: |
-          Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Recurse
+          $source = Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
+          $targetDir = "${{ runner.temp }}/acumatica-artifact-${{ env.VERSION_NAME }}"
+          New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+          Copy-Item -Path $source -Destination $targetDir
+          echo "UPLOAD_DIR=$targetDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
-      - name: Locate ZIP Path
-        id: locate_zip
-        shell: pwsh
-        run: |
-          $zipPath = Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
-          echo "ZIP_PATH=`"$zipPath`"" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-
-      - name: Upload Artifact using Safe Path
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: acumatica-customization-${{ env.VERSION_NAME }}
-          path: ${{ env.ZIP_PATH }}
+          path: ${{ env.UPLOAD_DIR }}
 
   # promote_to_qa:
   #   needs: build_and_deploy_to_dev

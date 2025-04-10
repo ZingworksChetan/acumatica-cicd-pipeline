@@ -102,7 +102,7 @@ jobs:
         with:
           name: acumatica-customization-${{ env.VERSION_NAME }}
           # path: ${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
-          path: ${{ github.workspace }}/*.zip
+          path: ${{ github.workspace }}/${{ env.VERSION_NAME }}.zip
 
       # - name: Upload ZIP to GitHub Release
       #   run: |

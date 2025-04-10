@@ -9,7 +9,8 @@ if (-not $versionName) {
 
 # Construct paths using System.IO to handle special characters properly
 $customizationPath = [System.IO.Path]::Combine("acumatica-customization", "Customization", $versionName)
-$zipFileName = [System.IO.Path]::Combine("acumatica-customization", "Customization", $versionName, "$versionName.zip")
+#$zipFileName = [System.IO.Path]::Combine("acumatica-customization", "Customization", $versionName, "$versionName.zip")
+$zipFileName = [System.IO.Path]::Combine("$versionName.zip")
 $xmlFilePath = [System.IO.Path]::Combine($customizationPath, "_project", "ProjectMetadata.xml")
 
 # Check if the customization folder exists

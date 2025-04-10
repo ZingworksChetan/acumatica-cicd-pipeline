@@ -209,47 +209,38 @@ namespace Velixo.Common.CustomizationPackageTools
                     password = password,
                     locale = "EN-US"
                 };
-
                 try
                 {
                     var jsonContent = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-
                     HttpResponseMessage response = await client.PostAsync(url, jsonContent);
-
                     if (response.IsSuccessStatusCode)
                     {
                         Console.WriteLine("Login successful!");
-
                         List<string> cookies = new List<string>();
                         if (response.Headers.TryGetValues("Set-Cookie", out var setCookies))
                         {
                             cookies = setCookies.Select(cookie => cookie.Split(';')[0]).ToList();
                         }
-
                         if (cookies.Count == 0)
                         {
                             Console.WriteLine("Login succeeded but no cookies were received.");
                             //return null;
                             return new List<string>(); // Avoid returning null
-
                         }
-
                         return cookies;
                     }
                     else
                     {
                         Console.WriteLine($"Login failed: {response.StatusCode} {response.ReasonPhrase}");
-                        //return null;
-                        return new List<string>(); // Avoid returning null
                         Environment.Exit(1);
+                        return new List<string>(); // Avoid returning null
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error logging in: {ex.Message}");
-                    //return null;
-                    return new List<string>(); // Avoid returning null
                     Environment.Exit(1);
+                    return new List<string>(); // Avoid returning null
                 }
             }
         }
@@ -386,8 +377,9 @@ namespace Velixo.Common.CustomizationPackageTools
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Exception while calling GetPublished: {ex.Message}");
-                    return newProject;
                     Environment.Exit(1);
+                    return newProject;
+                    
                 }
             }
         }
@@ -482,7 +474,6 @@ namespace Velixo.Common.CustomizationPackageTools
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Exception checking publish status: {ex.Message}");
-                        //throw;
                         Environment.Exit(1);
                     }
 

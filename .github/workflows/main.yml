@@ -113,7 +113,7 @@ jobs:
         shell: pwsh
         run: |
           $zipPath = Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Filter *.zip | Select-Object -ExpandProperty FullName
-          echo "ZIP_PATH=$zipPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+          echo "ZIP_PATH=`"$zipPath`"" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
       - name: Upload Artifact using Safe Path
         uses: actions/upload-artifact@v4

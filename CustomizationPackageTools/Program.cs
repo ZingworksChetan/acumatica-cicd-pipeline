@@ -248,13 +248,15 @@ namespace Velixo.Common.CustomizationPackageTools
                     Console.WriteLine($"Error logging in: {ex.Message}");
                     //return null;
                     return new List<string>(); // Avoid returning null
+                    Environment.Exit(1);
                 }
             }
         }
 
         private static async Task ImportCustomization(List<string> cookies, string projectName, string description, int level, string baseUrl)
         {
-            string packagePath = Path.Combine($"./acumatica-customization/Customization/{projectName}", $"{projectName}.zip");
+            //string packagePath = Path.Combine($"./acumatica-customization/Customization/{projectName}", $"{projectName}.zip");
+            string packagePath = Path.Combine($"{projectName}.zip");
 
             if (!File.Exists(packagePath))
             {
@@ -296,6 +298,7 @@ namespace Velixo.Common.CustomizationPackageTools
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error calling import: {ex.Message}");
+                    Environment.Exit(1);
                 }
             }
         }
@@ -383,6 +386,7 @@ namespace Velixo.Common.CustomizationPackageTools
                 {
                     Console.WriteLine($"Exception while calling GetPublished: {ex.Message}");
                     return newProject;
+                    Environment.Exit(1);
                 }
             }
         }
@@ -477,7 +481,8 @@ namespace Velixo.Common.CustomizationPackageTools
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Exception checking publish status: {ex.Message}");
-                        throw;
+                        //throw;
+                        Environment.Exit(1);
                     }
 
                     // Adjust delay dynamically based on attempts

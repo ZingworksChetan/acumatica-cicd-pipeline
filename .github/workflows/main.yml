@@ -103,6 +103,11 @@ jobs:
       #     name: acumatica-customization-${{ env.VERSION_NAME }}
       #     path: ${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}/*.zip
 
+      - name: Debug - List Files in Customization Folder
+        shell: pwsh
+        run: |
+          Get-ChildItem -LiteralPath "${{ github.workspace }}/acumatica-customization/Customization/${{ env.VERSION_NAME }}" -Recurse
+
       - name: Locate ZIP Path
         id: locate_zip
         shell: pwsh

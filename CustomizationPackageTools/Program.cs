@@ -446,7 +446,26 @@ namespace Velixo.Common.CustomizationPackageTools
                             isCompleted = jsonObject.GetProperty("isCompleted").GetBoolean();
                             bool isFailed = jsonObject.GetProperty("isFailed").GetBoolean();
 
-                            Console.WriteLine($"[Attempt {attempt + 1}] Publish Status: Completed={isCompleted}, Failed={isFailed}");
+                            string logMessages = "";
+                            if (jsonObject.TryGetProperty("log", out JsonElement logArray) && logArray.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var logEntry in logArray.EnumerateArray())
+                                {
+                                    string timestamp = logEntry.GetProperty("timestamp").GetString() ?? "N/A";
+                                    string logType = logEntry.GetProperty("logType").GetString() ?? "N/A";
+                                    string message = logEntry.GetProperty("message").GetString() ?? "N/A";
+
+                                    logMessages += $"[{timestamp}] [{logType.ToUpper()}] {message}\n";
+                                }
+                            }
+
+                            Console.WriteLine($"\n[Attempt {attempt + 1}] Publish Status: Completed={isCompleted}, Failed={isFailed}");
+
+                            if (!string.IsNullOrWhiteSpace(logMessages))
+                            {
+                                Console.WriteLine("Logs:");
+                                Console.WriteLine(logMessages.TrimEnd());
+                            }
 
                             if (isFailed)
                             {
